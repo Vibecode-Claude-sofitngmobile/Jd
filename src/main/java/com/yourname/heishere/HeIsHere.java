@@ -5,15 +5,15 @@ import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.minecraft.block.BarrelBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.ChestBlock;
-import net.minecraft.entity.passive.VillagerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.level.block.BarrelBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.phys.AABB;
 import java.util.List;
 
 public class HeIsHere implements ModInitializer {
@@ -25,15 +25,15 @@ public class HeIsHere implements ModInitializer {
     @Override
     public void onInitialize() {
         ServerPlayConnectionEvents.JOIN.register((h, s, srv) -> {
-            ServerPlayerEntity p = h.getPlayer();
-            if (!p.getCommandTags().contains("heishere_book")) {
+            ServerPlayer p = h.getPlayer();
+            if (!p.getTags().contains("heishere_book")) {
                 GodBook.give(p);
-                p.addCommandTag("heishere_book");
+                p.addTag("heishere_book");
             }
         });
 
         ServerMessageEvents.CHAT_MESSAGE.register((msg, snd, prm) -> {
-            String t = msg.getContent().getString().toLowerCase();
+            String t = msg.signedContent().toLowerCase();
             for (String w : BAD) {
                 if (t.contains(w)) {
                     snd.getServer().execute(() ->
@@ -43,18 +43,18 @@ public class HeIsHere implements ModInitializer {
             }
         });
 
-        UseBlockCallback.EVENT.register((plr, w, h, hit) -> {
-            if (!w.isClient && plr instanceof ServerPlayerEntity sp) {
-                if (stolen((ServerWorld) w, hit.getBlockPos())) {
+        UseBlockCallback.EVENT.register((plr, lvl, hand, hit) -> {
+            if (!lvl.isClientSide && plr instanceof ServerPlayer sp) {
+                if (stolen((ServerLevel) lvl, hit.getBlockPos())) {
                     GodWrath.punish(sp, "НЕ КРАДИ У МОИХ ДЕТЕЙ.");
                 }
             }
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         });
 
-        PlayerBlockBreakEvents.BEFORE.register((w, plr, pos, st, be) -> {
-            if (!w.isClient && plr instanceof ServerPlayerEntity sp) {
-                if (stolen((ServerWorld) w, pos)) {
+        PlayerBlockBreakEvents.BEFORE.register((lvl, plr, pos, st, be) -> {
+            if (!lvl.isClientSide && plr instanceof ServerPlayer sp) {
+                if (stolen((ServerLevel) lvl, pos)) {
                     GodWrath.punish(sp, "Я ВИЖУ, ЧТО ТЫ ЛОМАЕШЬ.");
                 }
             }
@@ -62,13 +62,12 @@ public class HeIsHere implements ModInitializer {
         });
     }
 
-    private boolean stolen(ServerWorld w, BlockPos pos) {
-        Block b = w.getBlockState(pos).getBlock();
+    private boolean stolen(ServerLevel lvl, BlockPos pos) {
+        Block b = lvl.getBlockState(pos).getBlock();
         if (!(b instanceof ChestBlock || b instanceof BarrelBlock)) {
             return false;
         }
-        Box box = new Box(pos).expand(14.0);
-        return !w.getEntitiesByClass(
-            VillagerEntity.class, box, v -> true).isEmpty();
+        AABB box = new AABB(pos).inflate(14.0);
+        return !lvl.getEntitiesOfClass(Villager.class, box).isEmpty();
     }
 }

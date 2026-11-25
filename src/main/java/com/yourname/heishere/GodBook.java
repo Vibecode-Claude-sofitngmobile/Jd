@@ -1,34 +1,34 @@
 package com.yourname.heishere;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class GodBook {
-    public static void give(ServerPlayerEntity p) {
+    public static void give(ServerPlayer p) {
         ItemStack book = new ItemStack(Items.WRITTEN_BOOK);
-        book.setSubNbt("title", NbtString.of("Заветы Того, Кто Здесь"));
-        book.setSubNbt("author", NbtString.of("ОН"));
+        book.addTagElement("title", StringTag.valueOf("Заветы Того, Кто Здесь"));
+        book.addTagElement("author", StringTag.valueOf("ОН"));
 
-        NbtList pages = new NbtList();
-        pages.add(NbtString.of(Text.Serializer.toJson(
-            Text.literal("HE'S HERE.\n\n")
-                .formatted(Formatting.DARK_RED, Formatting.BOLD)
-                .append(Text.literal("Я вижу каждый твой шаг.")
-                    .formatted(Formatting.BLACK))
+        ListTag pages = new ListTag();
+        pages.add(StringTag.valueOf(Component.Serializer.toJson(
+            Component.literal("HE'S HERE.\n\n")
+                .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD)
+                .append(Component.literal("Я вижу каждый твой шаг.")
+                    .withStyle(ChatFormatting.BLACK))
         )));
-        pages.add(NbtString.of(Text.Serializer.toJson(
-            Text.literal("ПРАВИЛА:\n\n")
-                .formatted(Formatting.DARK_RED, Formatting.BOLD)
-                .append(Text.literal(
+        pages.add(StringTag.valueOf(Component.Serializer.toJson(
+            Component.literal("ПРАВИЛА:\n\n")
+                .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD)
+                .append(Component.literal(
                     "1. Не кради у жителей.\n2. Не оскорбляй Меня.\n3. Три греха = смерть.")
-                    .formatted(Formatting.DARK_GRAY))
+                    .withStyle(ChatFormatting.DARK_GRAY))
         )));
-        book.setSubNbt("pages", pages);
-        p.getInventory().insertStack(book);
+        book.addTagElement("pages", pages);
+        p.getInventory().add(book);
     }
 }
