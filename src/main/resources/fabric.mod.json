@@ -1,38 +1,21 @@
 {
-	"schemaVersion": 1,
-	"id": "hes-here",
-	"version": "${version}",
-	"name": "HE'S HERE.",
-	"description": "This is an example description! Tell everyone what your mod is about!",
-	"authors": [
-		"Me!"
-	],
-	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
-	},
-	"license": "CC0-1.0",
-	"icon": "assets/hes-here/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"com.here.here.HESHERE"
-		],
-		"client": [
-			"com.here.here.client.HESHEREClient"
-		]
-	},
-	"mixins": [
-		"hes-here.mixins.json",
-		{
-			"config": "hes-here.client.mixins.json",
-			"environment": "client"
-		}
-	],
-	"depends": {
-		"fabricloader": ">=0.20.1",
-		"minecraft": "~1.20.1",
-		"java": ">=17",
-		"fabric-api": "*"
-	}
+  "schemaVersion": 1,
+  "id": "heishere",
+  "version": "1.0.0",
+  "name": "HE'S HERE",
+  "description": "Horror mod. He is watching.",
+  "authors": ["You"],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.yourname.heishere.HeIsHere"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.14.21",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-api": "*"
+  }
 }
